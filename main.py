@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLineEdit, \
     QPushButton, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
-    QComboBox, QToolBar
+    QComboBox, QToolBar, QStatusBar, QLabel
 from PyQt6.QtGui import QAction, QIcon
 import sys
 import sqlite3
@@ -47,9 +47,33 @@ class MainWindow(QMainWindow):
         toolbar.addAction(add_student_action)
         toolbar.addAction(search_action)
 
+        # Create Status Bar and add Status Bar elements
+        self.statusbar = QStatusBar()
+        self.setStatusBar(self.statusbar)
+
+        # Detect click (selecting a row in table) and then display status bar elements
+        self.table.cellClicked.connect(self.cell_clicked)
+
 
         # Calling load_data function here
         self.load_data()
+
+    def cell_clicked(self):
+        edit_button = QPushButton("Edit Record")
+        edit_button.clicked.connect(self.edit)
+
+
+        delete_button = QPushButton("Delete Record")
+        delete_button.clicked.connect(self.delete)
+
+        # To display status bar buttons only once instead of multiple when clicked to avoid duplicate buttons
+        children = self.findChildren(QPushButton)
+        if children:
+            for child in children:
+                self.statusbar.removeWidget(child)
+
+        self.statusbar.addWidget(edit_button)
+        self.statusbar.addWidget(delete_button)
 
     def load_data(self):
         connection = sqlite3.connect("database.db")
@@ -72,6 +96,14 @@ class MainWindow(QMainWindow):
 
     def search(self):
         dialog = SearchDialog()
+        dialog.exec()
+
+    def edit(self):
+        dialog = EditDialog()
+        dialog.exec()
+
+    def delete(self):
+        dialog = DeleteDialog()
         dialog.exec()
 
 
@@ -159,6 +191,21 @@ class SearchDialog(QDialog):
 
         cursor.close()
         connection.close()
+
+
+class EditDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Edit Records")
+        self.setFixedHeight(300)
+        self.setFixedWidth(300)
+
+
+class DeleteDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        pass
+
 
 
 app = QApplication(sys.argv)
