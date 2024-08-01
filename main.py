@@ -1,8 +1,8 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLineEdit, \
     QPushButton, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
-    QComboBox
-from PyQt6.QtGui import QAction
+    QComboBox, QToolBar
+from PyQt6.QtGui import QAction, QIcon
 import sys
 import sqlite3
 
@@ -11,6 +11,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Student Management System")
+        # Window Size
+        self.setMinimumSize(600, 400)
 
         # Menu
         file_menu = self.menuBar().addMenu("&File")
@@ -18,7 +20,7 @@ class MainWindow(QMainWindow):
         edit_menu = self.menuBar().addMenu("&Edit")
 
         # Sub Menu ( Actions )
-        add_student_action = QAction("Add Student", self)
+        add_student_action = QAction(QIcon("icons/add.png"), "Add Student", self)
         # noinspection PyUnresolvedReferences
         add_student_action.triggered.connect(self.insert)
         file_menu.addAction(add_student_action)
@@ -26,7 +28,7 @@ class MainWindow(QMainWindow):
         about_action = QAction("About", self)
         help_menu.addAction(about_action)
 
-        search_action = QAction("Search", self)
+        search_action = QAction(QIcon("icons/search.png"), "Search", self)
         # noinspection PyUnresolvedReferences
         search_action.triggered.connect(self.search)
         edit_menu.addAction(search_action)
@@ -37,6 +39,14 @@ class MainWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(("id", "Name", "Course", "Mobile"))
         self.table.verticalHeader().setVisible(False)
         self.setCentralWidget(self.table)
+
+        # Create ToolBar and add Tools or ToolBar elements
+        toolbar = QToolBar()
+        toolbar.setMovable(True)
+        self.addToolBar(toolbar)
+        toolbar.addAction(add_student_action)
+        toolbar.addAction(search_action)
+
 
         # Calling load_data function here
         self.load_data()
