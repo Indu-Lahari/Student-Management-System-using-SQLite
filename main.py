@@ -21,15 +21,14 @@ class MainWindow(QMainWindow):
 
         # Sub Menu ( Actions )
         add_student_action = QAction(QIcon("icons/add.png"), "Add Student", self)
-        # noinspection PyUnresolvedReferences
         add_student_action.triggered.connect(self.insert)
         file_menu.addAction(add_student_action)
 
         about_action = QAction("About", self)
         help_menu.addAction(about_action)
+        about_action.triggered.connect(self.about)
 
         search_action = QAction(QIcon("icons/search.png"), "Search", self)
-        # noinspection PyUnresolvedReferences
         search_action.triggered.connect(self.search)
         edit_menu.addAction(search_action)
 
@@ -104,6 +103,10 @@ class MainWindow(QMainWindow):
 
     def delete(self):
         dialog = DeleteDialog()
+        dialog.exec()
+
+    def about(self):
+        dialog = AboutDialog()
         dialog.exec()
 
 
@@ -288,6 +291,16 @@ class DeleteDialog(QDialog):
         confirmation_widget.setWindowTitle("Success")
         confirmation_widget.setText("The record was deleted successfully!")
         confirmation_widget.exec()
+
+
+class AboutDialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("About ")
+        content = """
+        This app was created during the course "The Python Mega Course".
+        Feel free to modify and reuse this app."""
+        self.setText(content)
 
 
 app = QApplication(sys.argv)
