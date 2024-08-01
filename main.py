@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QApplication, QLabel, QVBoxLayout, QLineEdit, \
-    QPushButton, QWidget, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QVBoxLayout, QLineEdit, \
+    QPushButton, QMainWindow, QTableWidget, QTableWidgetItem, QDialog, \
     QComboBox
 from PyQt6.QtGui import QAction
 import sys
@@ -14,14 +15,21 @@ class MainWindow(QMainWindow):
         # Menu
         file_menu = self.menuBar().addMenu("&File")
         help_menu = self.menuBar().addMenu("&Help")
+        edit_menu = self.menuBar().addMenu("&Edit")
 
         # Sub Menu ( Actions )
         add_student_action = QAction("Add Student", self)
+        # noinspection PyUnresolvedReferences
         add_student_action.triggered.connect(self.insert)
         file_menu.addAction(add_student_action)
 
         about_action = QAction("About", self)
         help_menu.addAction(about_action)
+
+        search_action = QAction("Search", self)
+        # noinspection PyUnresolvedReferences
+        search_action.triggered.connect(self.search)
+        edit_menu.addAction(search_action)
 
         # Table
         self.table = QTableWidget()
@@ -50,6 +58,10 @@ class MainWindow(QMainWindow):
 
     def insert(self):
         dialog = InsertDialog()
+        dialog.exec()
+
+    def search(self):
+        dialog = SearchDialog()
         dialog.exec()
 
 
@@ -99,6 +111,44 @@ class InsertDialog(QDialog):
         connection.close()
         # to refresh or load data automatically
         student_data.load_data()
+
+
+class SearchDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        # set window title and size
+        self.setWindowTitle("Search Student")
+        self.setFixedWidth(300)
+        self.setFixedHeight(300)
+
+        # Create layout and input widget
+        layout = QVBoxLayout()
+        self.student_name = QLineEdit()
+        self.student_name.setPlaceholderText("Name:")
+        layout.addWidget(self.student_name)
+
+        # Create Button
+        button = QPushButton("Search")
+        # noinspection PyUnresolvedReferences
+        button.clicked.connect(self.search)
+        layout.addWidget(button)
+
+        self.setLayout(layout)
+
+    def search(self):
+        name = self.student_name.text()
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        result = cursor.execute("SELECT * FROM students WHERE name = ?", (name,))
+        rows = list(result)
+        print(rows)
+        items = student_data.table.findItems(name, Qt.MatchFlag.MatchFixedString)
+        for item in items:
+            print(item)
+            student_data.table.item(item.row(), 1).setSelected(True)
+
+        cursor.close()
+        connection.close()
 
 
 app = QApplication(sys.argv)
