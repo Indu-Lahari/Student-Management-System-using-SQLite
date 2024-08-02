@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
         self.statusbar.addWidget(delete_button)
 
     def load_data(self):
-        connection = sqlite3.connect("database.db")
+        connection = DatabaseConnection().connect()
         result = connection.execute("SELECT * FROM students")
 
         self.table.setRowCount(0)
